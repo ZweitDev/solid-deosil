@@ -21,8 +21,8 @@ export default function Route() {
 
     return (
         <>
-            <h1 class="text-red-300">Test</h1>
-            <p>Data</p>
+            <h1 class="italic">Kubernetes Attributes</h1>
+            <p>Pulled directly from k8s API</p>
             {/* <pre>{JSON.stringify(pods(), null, 2)}</pre> */}
             {pods() && (
                 <For each={pods()!.items}>
@@ -38,6 +38,7 @@ export default function Route() {
                     )}
                 </For>
             )}
+            {pods() && <pre>{JSON.stringify(pods(), null, 2)}</pre>}
         </>
     );
 }
