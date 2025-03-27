@@ -1,4 +1,4 @@
-apiVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha
 kind: Workflow
 metadata:
     generateName: solid-deosil-ci-cd-
@@ -8,7 +8,8 @@ spec:
     entrypoint: main-pipeline
     volumes:
         - name: workspace
-          emptyDir: {}
+          hostPath:
+              path: /home/ky/dev/boxes/minikube-storage
         - name: docker-sock
           hostPath:
               path: /var/run/docker.sock
@@ -27,6 +28,8 @@ spec:
           steps:
               - - name: checkout-code
                   template: git-checkout
+              - - name: verify-files
+                  template: verify-files
               - - name: build-image
                   template: build-docker-image
                   arguments:
@@ -39,23 +42,24 @@ spec:
                       parameters:
                           - name: image-tag
                             value: "{{workflow.parameters.image-tag}}"
-              - - name: update-manifests
-                  template: update-k8s-manifests
-                  arguments:
-                      parameters:
-                          - name: image-tag
-                            value: "{{workflow.parameters.image-tag}}"
-              - - name: sync-argocd
-                  template: trigger-argocd-sync
 
         - name: git-checkout
           container:
               image: alpine/git
               command: [sh, -c]
-              args:
-                  [
-                      "git clone {{workflow.parameters.git-repo}} -b {{workflow.parameters.git-branch}} /src && cd /src && ls -la",
+              args: [
+                      "git clone {{workflow.parameters.git-repo}} -b {{workflow.parameters.git-branch}} /src
+                      && ls -la /src",
                   ]
+              volumeMounts:
+                  - name: workspace
+                    mountPath: /src
+
+        - name: verify-files
+          container:
+              image: alpine
+              command: [sh, -c]
+              args: ["ls -la /src"]
               volumeMounts:
                   - name: workspace
                     mountPath: /src
@@ -70,7 +74,7 @@ spec:
               command: [sh, -c]
               args:
                   [
-                      "docker build -t registry.minikube/solid-deosil:{{inputs.parameters.image-tag}} .",
+                      "ls -la && docker build -t registry.minikube/solid-deosil:{{inputs.parameters.image-tag}} .",
                   ]
               volumeMounts:
                   - name: workspace
@@ -93,35 +97,13 @@ spec:
                   - name: docker-sock
                     mountPath: /var/run/docker.sock
 
-        - name: update-k8s-manifests
-          inputs:
-              parameters:
-                  - name: image-tag
-          container:
-              image: alpine/k8s:1.25
-              workingDir: /src
-              command: [sh, -c]
-              args:
-                  [
-                      'sed -i ''s|registry.minikube/solid-deosil:.*|registry.minikube/solid-deosil:{{inputs.parameters.image-tag}}|'' k8s-manifests/deployment.yaml && git config --global user.email "argo@workflow" && git config --global user.name "Argo Workflow" && git add k8s-manifests/deployment.yaml && git commit -m "Update image tag to {{inputs.parameters.image-tag}}" && git push',
-                  ]
-              volumeMounts:
-                  - name: workspace
-                    mountPath: /src
-              env:
-                  - name: GIT_TOKEN
-                    valueFrom:
-                        secretKeyRef:
-                            name: git-credentials
-                            key: token
-
         - name: trigger-argocd-sync
           container:
               image: curlimages/curl
               command: [sh, -c]
               args:
                   [
-                      'curl -X POST -H "Authorization: Bearer $ARGO_TOKEN" http://argocd-server.argocd.svc.cluster.local/api/v1/applications/solid-deosil/sync',
+                      'curl -X POST -H "Authorization: Bearer $ARGO_TOKEN" https://argocd.your-domain.com/api/v1/applications/vite-app/sync',
                   ]
               env:
                   - name: ARGO_TOKEN
