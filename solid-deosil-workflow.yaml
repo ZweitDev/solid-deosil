@@ -1,8 +1,9 @@
 # solid-deosil-workflow.yaml
 apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+kind: Workflow
 metadata:
-  name: solid-deosil-ci-cd
+  generateName: solid-deosil-ci-cd-
+  namespace: argo
 spec:
   entrypoint: main-pipeline
   arguments:
@@ -120,12 +121,4 @@ spec:
 
     - name: trigger-argocd-sync
       container:
-        image: curlimages/curl
-        command: [sh, -c]
-        args: ["curl -X POST -H \"Authorization: Bearer $ARGO_TOKEN\" https://argocd.your-domain.com/api/v1/applications/solid-deosil/sync"]
-        env:
-        - name: ARGO_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: argocd-credentials
-              key: token
+        image: curlim
