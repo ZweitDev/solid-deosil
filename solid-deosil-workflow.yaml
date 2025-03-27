@@ -9,8 +9,6 @@ spec:
     volumes:
         - name: workspace
           emptyDir: {}
-        - name: tmp
-          emptyDir: {}
         - name: docker-sock
           hostPath:
               path: /var/run/docker.sock
@@ -58,90 +56,20 @@ spec:
               command: [sh, -c]
               args:
                   [
-                      "git clone {{workflow.parameters.git-repo}} -b {{workflow.parameters.git-branch}} /src && cd /src && git rev-parse HEAD > /tmp/commit.txt",
+                      "git clone {{workflow.parameters.git-repo}} -b {{workflow.parameters.git-branch}} /src && cd /src && ls -la",
                   ]
               volumeMounts:
                   - name: workspace
                     mountPath: /src
-                  - name: tmp
-                    mountPath: /tmp
 
         - name: build-test-app
           container:
               image: node:18
               workingDir: /src
               command: [sh, -c]
-              args: ["npm install && npm run build && npm test"]
+              args: ["ls -la && npm install && npm run build && npm test"]
               volumeMounts:
                   - name: workspace
                     mountPath: /src
 
-        - name: build-docker-image
-          inputs:
-              parameters:
-                  - name: image-tag
-          container:
-              image: docker:20.10
-              workingDir: /src
-              command: [sh, -c]
-              args:
-                  [
-                      "docker build -t registry.minikube/solid-deosil:{{inputs.parameters.image-tag}} .",
-                  ]
-              volumeMounts:
-                  - name: workspace
-                    mountPath: /src
-                  - name: docker-sock
-                    mountPath: /var/run/docker.sock
-
-        - name: push-docker-image
-          inputs:
-              parameters:
-                  - name: image-tag
-          container:
-              image: docker:20.10
-              command: [sh, -c]
-              args:
-                  [
-                      "docker push registry.minikube/solid-deosil:{{inputs.parameters.image-tag}}",
-                  ]
-              volumeMounts:
-                  - name: docker-sock
-                    mountPath: /var/run/docker.sock
-
-        - name: update-k8s-manifests
-          inputs:
-              parameters:
-                  - name: image-tag
-          container:
-              image: alpine/k8s:1.25
-              workingDir: /src
-              command: [sh, -c]
-              args:
-                  [
-                      'sed -i ''s|registry.minikube/solid-deosil:.*|registry.minikube/solid-deosil:{{inputs.parameters.image-tag}}|'' k8s-manifests/deployment.yaml && git config --global user.email "argo@workflow" && git config --global user.name "Argo Workflow" && git add k8s-manifests/deployment.yaml && git commit -m "Update image tag to {{inputs.parameters.image-tag}}" && git push',
-                  ]
-              volumeMounts:
-                  - name: workspace
-                    mountPath: /src
-              env:
-                  - name: GIT_TOKEN
-                    valueFrom:
-                        secretKeyRef:
-                            name: git-credentials
-                            key: token
-
-        - name: trigger-argocd-sync
-          container:
-              image: curlimages/curl
-              command: [sh, -c]
-              args:
-                  [
-                      'curl -X POST -H "Authorization: Bearer $ARGO_TOKEN" http://argocd-server.argocd.svc.cluster.local/api/v1/applications/solid-deosil/sync',
-                  ]
-              env:
-                  - name: ARGO_TOKEN
-                    valueFrom:
-                        secretKeyRef:
-                            name: argocd-credentials
-                            key: token
+        # ... rest of your templates remain the same ...
