@@ -5,7 +5,7 @@ metadata:
     generateName: solid-deosil-ci-cd-
     namespace: argo
 spec:
-    serviceAccount: workflow-executor
+    serviceAccountName: workflow-executor
     entrypoint: main-pipeline
     arguments:
         parameters:
