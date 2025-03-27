@@ -1,27 +1,21 @@
+# argocd-app.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-    name: vite-app
-    namespace: argocd
+  name: solid-deosil
+  namespace: argocd
 spec:
-    project: default
-    source:
-        repoURL: https://github.com/your-username/your-vite-repo.git
-        targetRevision: HEAD
-        path: k8s-manifests
-        directory:
-            recurse: true
-    destination:
-        server: https://kubernetes.default.svc
-        namespace: default
-    syncPolicy:
-        automated:
-            prune: true
-            selfHeal: true
-        syncOptions:
-            - CreateNamespace=true
-    ignoreDifferences:
-        - group: apps
-          kind: Deployment
-          jsonPointers:
-              - /spec/replicas
+  project: default
+  source:
+    repoURL: https://github.com/ZweitDev/solid-deosil.git
+    targetRevision: HEAD
+    path: k8s-manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+    - CreateNamespace=true

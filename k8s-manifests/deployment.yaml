@@ -2,28 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: vite-app
+    name: solid-deosil
     labels:
-        app: vite-app
+        app: solid-deosil
 spec:
     replicas: 2
     selector:
         matchLabels:
-            app: vite-app
+            app: solid-deosil
     template:
         metadata:
             labels:
-                app: vite-app
+                app: solid-deosil
         spec:
             containers:
-                - name: vite-app
-                  image: your-registry/vite-app:latest
+                - name: solid-deosil
+                  image: registry.minikube/solid-deosil:latest # Will be updated by workflow
                   ports:
                       - containerPort: 80
-                  resources:
-                      requests:
-                          cpu: "100m"
-                          memory: "128Mi"
-                      limits:
-                          cpu: "200m"
-                          memory: "256Mi"
