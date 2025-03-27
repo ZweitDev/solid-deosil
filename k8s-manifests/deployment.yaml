@@ -1,0 +1,29 @@
+# k8s-manifests/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: vite-app
+    labels:
+        app: vite-app
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: vite-app
+    template:
+        metadata:
+            labels:
+                app: vite-app
+        spec:
+            containers:
+                - name: vite-app
+                  image: your-registry/vite-app:latest
+                  ports:
+                      - containerPort: 80
+                  resources:
+                      requests:
+                          cpu: "100m"
+                          memory: "128Mi"
+                      limits:
+                          cpu: "200m"
+                          memory: "256Mi"
