@@ -27,8 +27,6 @@ spec:
           steps:
               - - name: checkout-code
                   template: git-checkout
-              - - name: build-test
-                  template: build-test-app
               - - name: build-image
                   template: build-docker-image
                   arguments:
@@ -58,16 +56,6 @@ spec:
                   [
                       "git clone {{workflow.parameters.git-repo}} -b {{workflow.parameters.git-branch}} /src && cd /src && ls -la",
                   ]
-              volumeMounts:
-                  - name: workspace
-                    mountPath: /src
-
-        - name: build-test-app
-          container:
-              image: node:18
-              workingDir: /src
-              command: [sh, -c]
-              args: ["ls -la && npm install && npm run build && npm test"]
               volumeMounts:
                   - name: workspace
                     mountPath: /src
