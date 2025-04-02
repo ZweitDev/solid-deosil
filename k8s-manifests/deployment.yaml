@@ -19,4 +19,4 @@ spec:
                 - name: solid-deosil
                   image: registry.minikube/solid-deosil:latest # Will be updated by workflow
                   ports:
-                      - containerPort: 80
+                      - containerPort: 3000
