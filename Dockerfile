@@ -9,5 +9,5 @@ COPY package*.json .
 COPY . .
 RUN pnpm install
 RUN pnpm build
-COPY ./dist ./dist
+COPY . .
 CMD ["node", "./dist/server.js", "--host", "0.0.0.0", "--port", "3000"]
