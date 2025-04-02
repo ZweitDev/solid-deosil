@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: vite-app
+    name: solid-deosil
 spec:
     selector:
-        app: vite-app
+        app: solid-deosil
     ports:
         - protocol: TCP
           port: 3000
