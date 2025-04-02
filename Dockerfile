@@ -39,4 +39,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Start command
-CMD ["node", "./output/server/index.mjs" ]
+CMD ["node", "./.output/server/index.mjs" ]
