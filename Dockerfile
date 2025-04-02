@@ -6,7 +6,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 COPY package*.json .
-RUN pnpm install
 COPY . .
-EXPOSE 3000
-CMD ["pnpm", "run","dev"]
+RUN pnpm install
+RUN pnpm build
+CMD ["node", "./dist/server.js", "--host", "0.0.0.0", "--port", "3000"]
