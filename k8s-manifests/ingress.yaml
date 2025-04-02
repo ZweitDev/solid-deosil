@@ -6,7 +6,7 @@ metadata:
         nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
     rules:
-        - host: vite-app.your-domain.com
+        - host: solid.deosil.minikube
           http:
               paths:
                   - path: /
